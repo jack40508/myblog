@@ -19,7 +19,7 @@ class EssaySeeder extends Seeder
 
          'name'         => 		'範例文章',
          'writer'		=>		'1',
-         'group'   		=>		'0',
+         'group'   		=>		'1',
          'detail'		=>		'此篇文章是範例文章',
 
       ]);

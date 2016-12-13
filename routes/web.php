@@ -19,4 +19,7 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index');
 
+//show essay with group
+Route::get('/blog/group/{index}','BlogController@showgroup');
+
 $router->resource('blog','BlogController');

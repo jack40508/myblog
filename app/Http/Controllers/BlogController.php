@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Essay;
 use App\EssayGroup;
+use App\UserGroup;
 
 class BlogController extends Controller
 {
@@ -14,11 +15,12 @@ class BlogController extends Controller
      *
      * @return void
      */
-    public function __construct(Essay $essay,EssayGroup $essaygroup)
+    public function __construct(Essay $essay,EssayGroup $essaygroup,UserGroup $user_groups)
     {
         $this->middleware('auth');
         $this->essay = $essay;
         $this->essaygroup = $essaygroup;
+        $this->user_groups = $user_groups;
     }
 
     /**
@@ -29,15 +31,14 @@ class BlogController extends Controller
 	public function index()
 	{
 		//
-		$essay = $this->essay->where('writer',Auth::user()->id)->join('essaygroups',function($join)
+		$essaies = $this->essay->where('writer',Auth::user()->id)->join('essaygroups',function($join)
 																		{
-																			$join->on('essaies.group','=','essaygroups.id')
-																				->select('essaygroups.id as groupid');
-																		}
-																		)->get();
-
-		return($essay);
-		//return view('blog/index',compact('essay'));
+																			$join->on('essaies.group','=','essaygroups.id');
+																		})->select('essaies.id','essaies.name','essaies.writer','essaies.detail','essaygroups.name as group_name','essaygroups.id as group_id')->orderBy('id','DESC')->get();
+		
+		$essaygroups = $this->user_groups->join('essaygroups','user_groups.group_id','=','essaygroups.id')->orderBy('group_id')->get();
+		//return($essaygroups);
+		return view('blog/index',compact('essaies','essaygroups'));
 	}
 
 	/**
@@ -66,6 +67,11 @@ class BlogController extends Controller
 			$newessaygroup = new EssayGroup;
 			$newessaygroup->name = $request->get('input_group');
 			$newessaygroup->save();
+
+			$newuser_group = new UserGroup;
+			$newuser_group->user_id = Auth::user()->id;
+			$newuser_group->group_id = $this->essaygroup->orderBy('id','desc')->first()->id;
+			$newuser_group->save();
 		}
 
 		$newessay = new Essay;
@@ -120,5 +126,20 @@ class BlogController extends Controller
 	public function destroy($id)
 	{
 		//
+	}
+
+	public function showgroup($id)
+	{
+		//
+		//
+		$essaies = $this->essay->where('writer',Auth::user()->id)->where('group',$id)->join('essaygroups',function($join)
+																		{
+																			$join->on('essaies.group','=','essaygroups.id');
+																		})->select('essaies.id','essaies.name','essaies.writer','essaies.detail','essaygroups.name as group_name','essaygroups.id as group_id')->orderBy('id','DESC')->get();
+		
+		$essaygroups = $this->user_groups->where('user_id',Auth::user()->id)->join('essaygroups','user_groups.group_id','=','essaygroups.id')->orderBy('group_id')->get();
+		//return($essaygroups);
+		$group_id = $id;
+		return view('blog/index',compact('essaies','essaygroups','group_id'));
 	}
 }
