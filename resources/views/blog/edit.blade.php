@@ -8,22 +8,22 @@
                 <div class="panel-heading">新建文章</div>
 
                 <div class="panel-body">
-                    {!!Form::open(['url'=>'/blog','method'=>'POST'])!!}
+                    {!!Form::open(['url'=>'/blog/'.$essay->id,'method'=>'patch'])!!}
                         <div class="form-group">
                             {!!Form::label('文章名稱')!!}
-                            {!!Form::text('input_name',"",['class'=>'form-control'])!!}
+                            {!!Form::text('input_name',$essay->name,['class'=>'form-control'])!!}
                         </div>
                         <div class="form-group">
                             {!!Form::label('文章類別')!!}
-                            {!!Form::text('input_group',"",['class'=>'form-control'])!!}
+                            {!!Form::text('input_group',$essay->group_name,['class'=>'form-control'])!!}
                         </div>
                         <div class="form-group">
                             {!!Form::label('請輸入文章內容')!!}
-                            {!!Form::textarea('input_message','',['class' => 'form-control']) !!}
+                            {!!Form::textarea('input_message',$essay->detail,['class' => 'form-control']) !!}
                         </div>
 
                         <div class="form-group">
-                            {!!Form::submit('新增文章',['class'=>'btn btn-primary'])!!}
+                            {!!Form::submit('確認編輯',['class'=>'btn btn-primary'])!!}
                         </div>
                     {!!Form::close()!!}
                 </div>
