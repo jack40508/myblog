@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use App\Essaies\EssayRepository;
-use App\EssayGroup;
+use App\Essaies\EssayGroup;
 
 class BlogController extends Controller
 {
@@ -28,8 +28,10 @@ class BlogController extends Controller
 	 */
 	public function index()
 	{
-		$essaies = $this->essay->getAll();
-		$essaygroups = $this->essay->getAllGroups();
+		$essaies = $this->essay->getAllUserEssaies();
+		$essaygroups = $this->essay->getAllUserGroups();
+
+		//dd($essaygroups);
 
 		return view('blog/index',compact('essaies','essaygroups'));
 	}
@@ -97,7 +99,7 @@ class BlogController extends Controller
 		$essay->name = $request->input_name;
 		$essay->detail = $request->input_message;
 		$this->essay->createNewGroup($request->input_group);
-		$essay->group = $this->essaygroup->where('name',$request->input_group)->first()->id;
+		$essay->group_id = $this->essaygroup->where('name',$request->input_group)->first()->id;
 		
 		$essay->save();
 
@@ -120,8 +122,8 @@ class BlogController extends Controller
 	public function showgroup($id)
 	{
 		//
-		$essaies = $this->essay->getEssaiesByColumn('group',$id);
-		$essaygroups = $this->essay->getAllGroups();
+		$essaies = $this->essay->getEssaiesByColumn('group_id',$id);
+		$essaygroups = $this->essay->getAllUserGroups();
 		$group_id = $id;
 
 		return view('blog/index',compact('essaies','essaygroups','group_id'));

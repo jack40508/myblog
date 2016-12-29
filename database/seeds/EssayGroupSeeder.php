@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\EssayGroup;
+use App\Essaies\EssayGroup;
 
 class EssayGroupSeeder extends Seeder
 {

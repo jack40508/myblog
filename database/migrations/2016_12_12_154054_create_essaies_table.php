@@ -19,7 +19,7 @@ class CreateEssaiesTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->integer('writer');
-            $table->integer('group');
+            $table->integer('group_id');
             $table->string('detail');
             $table->timestamps();
         });

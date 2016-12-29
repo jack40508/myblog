@@ -15,7 +15,7 @@
                         </div>
                         <div class="form-group">
                             {!!Form::label('文章類別')!!}
-                            {!!Form::text('input_group',$essay->group_name,['class'=>'form-control'])!!}
+                            {!!Form::text('input_group',$essay->group->name,['class'=>'form-control'])!!}
                         </div>
                         <div class="form-group">
                             {!!Form::label('請輸入文章內容')!!}

@@ -5,7 +5,7 @@ namespace App\Essaies;
 use Illuminate\Http\Request;
 use Auth;
 use App\Essaies\Essay;
-use App\EssayGroup;
+use App\Essaies\EssayGroup;
 
 
 class EssayRepository
@@ -16,42 +16,32 @@ class EssayRepository
         $this->essaygroup = $essaygroup;
     }
 
-	public function getAll()
+	public function getAllUserEssaies()
     {
-        $essaies = $this->essay->where('writer',Auth::user()->id)->join('essaygroups',function($join)
-																		{
-																			$join->on('essaies.group','=','essaygroups.id');
-																		})->select('essaies.id','essaies.name','essaies.writer','essaies.detail','essaygroups.name as group_name','essaygroups.id as group_id')->orderBy('id','DESC')->get();
-        $essaies = $this->essay->get();
+        $essaies = $this->essay->where('writer',Auth::user()->id)->orderBy('id','DESC')->get();
+
         return $essaies;
     }
 
-    public function getAllGroups()
+    public function getAllUserGroups()
     {
-        $essaygroups = $this->essay->where('writer',Auth::user()->id)->join('essaygroups',function($join)
-                                                                        {
-                                                                            $join->on('essaies.group','=','essaygroups.id');
-                                                                        })->select('essaies.group as id','essaygroups.name as name')->distinct()->get();
+        $essaygroups = $this->essaygroup->whereHas('essaies',function($query)
+                                                            {
+                                                                $query->where('writer',Auth::user()->id);
+                                                            })->get();
+
         return $essaygroups;
     }
 
-    public function getEssayByID($value)
+    public function getEssayByID($id)
     {
-        $essaies = $this->essay->where('writer',Auth::user()->id)->join('essaygroups',function($join) use($value)
-                                                                    {
-                                                                        $join->on('essaies.group','=','essaygroups.id')
-                                                                            ->where('essaies.id',$value);
-                                                                    })->select('essaies.id','essaies.name','essaies.writer','essaies.detail','essaygroups.name as group_name','essaygroups.id as group_id')->orderBy('id','DESC')->first();
-        return $essaies;
+        $essay = $this->essay->find($id);
+        return $essay;
     }
 
     public function getEssaiesByColumn($column,$value)
     {
-        $essaies = $this->essay->where('writer',Auth::user()->id)->join('essaygroups',function($join) use($column,$value)
-                                                                    {
-                                                                        $join->on('essaies.group','=','essaygroups.id')
-                                                                            ->where($column,$value);
-                                                                    })->select('essaies.id','essaies.name','essaies.writer','essaies.detail','essaygroups.name as group_name','essaygroups.id as group_id')->orderBy('id','DESC')->get();
+        $essaies = $this->essay->where('writer',Auth::user()->id)->where($column,$value)->get();
         return $essaies;
     }
 
@@ -62,19 +52,14 @@ class EssayRepository
         $newessay = new Essay;
         $newessay->name = $request->get('input_name');
         $newessay->writer = Auth::user()->id;
-        $newessay->group = $this->essaygroup->where('name',$request->get('input_group'))->first()->id;
+        $newessay->group_id = $this->essaygroup->where('name',$request->get('input_group'))->first()->id;
         $newessay->detail = $request->get('input_message');
         $newessay->save();  
     }
 
     public function createNewGroup($group_name)
     {
-        if(is_null($this->essaygroup->where('name',$group_name)->first()))
-        {
-            $newessaygroup = new EssayGroup;
-            $newessaygroup->name = $group_name;
-            $newessaygroup->save();
-        }
+        $this->essaygroup->firstOrCreate(['name' => $group_name]);
     }  
 
     public function deleteEssayByID($id)
